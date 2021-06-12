@@ -27,6 +27,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -39,7 +40,8 @@ import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
     ImageView selectedImage;
-    Button cameraBtn, galleryBtn;
+    //Button cameraBtn, galleryBtn;
+
     String currentPhotoPath;
     StorageReference storageReference;
 
@@ -53,12 +55,18 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         selectedImage = findViewById(R.id.displayImageView);
+        /* ancien button d'action
         cameraBtn = findViewById(R.id.cameraBtn);
         galleryBtn = findViewById(R.id.galleryBtn);
 
+         */
+
+        FloatingActionButton fab_gallery = findViewById(R.id.fab_gallery);
+        FloatingActionButton fab_photo = findViewById(R.id.fab_photo);
+
         storageReference = FirebaseStorage.getInstance().getReference();
 
-        cameraBtn.setOnClickListener(new View.OnClickListener() {
+        fab_photo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Toast.makeText(MainActivity.this, "click sur Boutton de camera", Toast.LENGTH_SHORT).show();
@@ -66,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        galleryBtn.setOnClickListener(new View.OnClickListener() {
+        fab_gallery.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Toast.makeText(MainActivity.this, "click sur Boutton de galerie", Toast.LENGTH_SHORT).show();

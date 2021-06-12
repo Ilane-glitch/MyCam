@@ -6,16 +6,20 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <include layout="@layout/button_layout" />
+
     <ImageView
         android:id="@+id/displayImageView"
-        android:layout_width="300dp"
-        android:layout_height="300dp"
+        android:layout_width="323dp"
+        android:layout_height="504dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.23000002"
-        app:srcCompat="@drawable/ic_launcher_background" />
+        app:srcCompat="@drawable/ic_baseline_photo_album_24" />
+
+    <!-- ancien layout
 
     <Button
         android:id="@+id/cameraBtn"
@@ -37,4 +41,8 @@
         app:layout_constraintBottom_toBottomOf="@+id/cameraBtn"
         app:layout_constraintStart_toEndOf="@+id/cameraBtn"
         app:layout_constraintTop_toTopOf="@+id/cameraBtn" />
+
+        -->
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>
