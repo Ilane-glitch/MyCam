@@ -40,11 +40,13 @@ import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
     ImageView selectedImage;
-    //Button cameraBtn, galleryBtn;
-
+    /*
+    Button cameraBtn, galleryBtn;
+     */
     String currentPhotoPath;
     StorageReference storageReference;
 
+    //codes d'acces
     public static final int CAMERA_PERM_CODE = 101;
     public static final int CAMERA_REQUEST_CODE = 102;
     public static final int GALLERY_REQUEST_CODE = 105;
@@ -58,7 +60,6 @@ public class MainActivity extends AppCompatActivity {
         /* ancien button d'action
         cameraBtn = findViewById(R.id.cameraBtn);
         galleryBtn = findViewById(R.id.galleryBtn);
-
          */
 
         FloatingActionButton fab_gallery = findViewById(R.id.fab_gallery);
@@ -66,18 +67,19 @@ public class MainActivity extends AppCompatActivity {
 
         storageReference = FirebaseStorage.getInstance().getReference();
 
+        //click sur le bouton photo
         fab_photo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(MainActivity.this, "click sur Boutton de camera", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "click sur Bouton de camera", Toast.LENGTH_SHORT).show();
                 askCameraPermissions();
             }
         });
-
+        //click sur le bouton gallery
         fab_gallery.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(MainActivity.this, "click sur Boutton de galerie", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "click sur Bouton de galerie", Toast.LENGTH_SHORT).show();
                 Intent gallery = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                 startActivityForResult(gallery, GALLERY_REQUEST_CODE);
             }
@@ -85,6 +87,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    //demande de permission
     private void askCameraPermissions() {
         if(ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED){
             ActivityCompat.requestPermissions(this,new String[] {Manifest.permission.CAMERA}, CAMERA_PERM_CODE);
@@ -100,13 +103,16 @@ public class MainActivity extends AppCompatActivity {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 /* open camera*/
                 dispatchTakePictureIntent();
-                //openCamera();
+                /*
+                openCamera();
+                 */
             } else {
                 Toast.makeText(this, "Permission necessaire pour utiliser la caméra", Toast.LENGTH_SHORT).show();
             }
         }
     }
 
+    //méthode pour ouverture de caméra
     private void openCamera() {
         Toast.makeText(this, "Ouverture de la caméra...", Toast.LENGTH_SHORT).show();
         Intent camera = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -115,38 +121,47 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        //traitement image photo
         if (requestCode == CAMERA_REQUEST_CODE){
             /*Bitmap image = (Bitmap) data.getExtras().get("data");
             selectedImage.setImageBitmap(image);*/
             if (resultCode == Activity.RESULT_OK){
                 File f = new File(currentPhotoPath);
-                //selectedImage.setImageURI(Uri.fromFile(f));
+                /*
+                selectedImage.setImageURI(Uri.fromFile(f));
+                 */
                 Log.d("onActivity","Absolute Url of image is "+Uri.fromFile(f));
 
                 //ajout d'une photo dans la galerie
                 Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+                //creation du nom de l'image
                 Uri contentUri = Uri.fromFile(f);
                 mediaScanIntent.setData(contentUri);
                 this.sendBroadcast(mediaScanIntent);
-
+                //upload de la photo dans le serveur firebase
                 uploadImageToFirebase(f.getName(),contentUri);
             }
         }
-
+        //traitement image galerie
         if (requestCode == GALLERY_REQUEST_CODE){
             if (resultCode == Activity.RESULT_OK){
+                //creation du nom de l'image
                 Uri contentUri = data.getData();
                 String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
                 String imageFileName = "JPEG_" + timeStamp + "_"+getFileExt(contentUri);
                 Log.d("Gallery request ","onActivityResult: Gallery Image Uri "+ imageFileName);
-                //selectedImage.setImageURI(contentUri);
-
+                /*
+                selectedImage.setImageURI(contentUri);
+                 */
+                //upload de l'image dans le serveur firebase
                 uploadImageToFirebase(imageFileName,contentUri);
             }
         }
     }
 
+    //méthode d'ajout sur serveur firebase
     private void uploadImageToFirebase(String name, Uri contentUri) {
+        //endroit de stockage dans le serveur -> modifier et gérer plusieurs "name" ?
         StorageReference image = storageReference.child("pictures/"+ name);
         image.putFile(contentUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
@@ -154,6 +169,7 @@ public class MainActivity extends AppCompatActivity {
                 image.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                     @Override
                     public void onSuccess(Uri uri) {
+                        //download de l'image précédement upload -> permet de savoir si elle a bien été upload via la bibliothèque Picasso
                         Log.d("tag", "onSuccess: Uploaded Image URl is " + uri.toString());
                         Picasso.get().load(uri).into(selectedImage);
                     }
@@ -164,23 +180,27 @@ public class MainActivity extends AppCompatActivity {
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
+                //cas d'echec de l'upload
                 Toast.makeText(MainActivity.this, "Upload Failled.", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
+    //métohode pour ouvrir la caméra -> dispo sur documentation
     private String getFileExt(Uri contentUri) {
         ContentResolver c = getContentResolver();
         MimeTypeMap mime = MimeTypeMap.getSingleton();
         return mime.getExtensionFromMimeType(c.getType(contentUri));
     }
 
-
+    //métohode pour ouvrir la caméra -> dispo sur documentation
     private File createImageFile() throws IOException {
         // Create an image file name
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String imageFileName = "JPEG_" + timeStamp + "_";
-        //File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        /* ancienne technique de stockage
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+         */
         File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
         File image = File.createTempFile(
                 imageFileName,  /* prefix */
@@ -194,6 +214,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    //métohode pour ouvrir la caméra -> dispo sur documentation
     private void dispatchTakePictureIntent() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         // Ensure that there's a camera activity to handle the intent
@@ -204,7 +225,6 @@ public class MainActivity extends AppCompatActivity {
                 photoFile = createImageFile();
             } catch (IOException ex) {
                 // Error occurred while creating the File
-
             }
             // Continue only if the File was successfully created
             if (photoFile != null) {
