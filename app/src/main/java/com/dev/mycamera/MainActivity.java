@@ -99,6 +99,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == CAMERA_PERM_CODE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 /* open camera*/
@@ -121,16 +122,17 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
         //traitement image photo
-        if (requestCode == CAMERA_REQUEST_CODE){
+        if (requestCode == CAMERA_REQUEST_CODE) {
             /*Bitmap image = (Bitmap) data.getExtras().get("data");
             selectedImage.setImageBitmap(image);*/
-            if (resultCode == Activity.RESULT_OK){
+            if (resultCode == Activity.RESULT_OK) {
                 File f = new File(currentPhotoPath);
                 /*
                 selectedImage.setImageURI(Uri.fromFile(f));
                  */
-                Log.d("onActivity","Absolute Url of image is "+Uri.fromFile(f));
+                Log.d("onActivity", "Absolute Url of image is " + Uri.fromFile(f));
 
                 //ajout d'une photo dans la galerie
                 Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
@@ -139,22 +141,22 @@ public class MainActivity extends AppCompatActivity {
                 mediaScanIntent.setData(contentUri);
                 this.sendBroadcast(mediaScanIntent);
                 //upload de la photo dans le serveur firebase
-                uploadImageToFirebase(f.getName(),contentUri);
+                uploadImageToFirebase(f.getName(), contentUri);
             }
         }
         //traitement image galerie
-        if (requestCode == GALLERY_REQUEST_CODE){
-            if (resultCode == Activity.RESULT_OK){
+        if (requestCode == GALLERY_REQUEST_CODE) {
+            if (resultCode == Activity.RESULT_OK) {
                 //creation du nom de l'image
                 Uri contentUri = data.getData();
                 String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-                String imageFileName = "JPEG_" + timeStamp + "_"+getFileExt(contentUri);
-                Log.d("Gallery request ","onActivityResult: Gallery Image Uri "+ imageFileName);
+                String imageFileName = "JPEG_" + timeStamp + "_" + getFileExt(contentUri);
+                Log.d("Gallery request ", "onActivityResult: Gallery Image Uri " + imageFileName);
                 /*
                 selectedImage.setImageURI(contentUri);
                  */
                 //upload de l'image dans le serveur firebase
-                uploadImageToFirebase(imageFileName,contentUri);
+                uploadImageToFirebase(imageFileName, contentUri);
             }
         }
     }
@@ -186,14 +188,14 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    //métohode pour ouvrir la caméra -> dispo sur documentation
+    //métohode pour avoir le fichier -> dispo sur documentation
     private String getFileExt(Uri contentUri) {
         ContentResolver c = getContentResolver();
         MimeTypeMap mime = MimeTypeMap.getSingleton();
         return mime.getExtensionFromMimeType(c.getType(contentUri));
     }
 
-    //métohode pour ouvrir la caméra -> dispo sur documentation
+    //métohode de création de l'image -> dispo sur documentation
     private File createImageFile() throws IOException {
         // Create an image file name
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
